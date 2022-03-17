@@ -1,5 +1,5 @@
 === Mailjet Contact for WooCommerce ===
-Contributors: Pratap
+Contributors: Pratap Dungrani
 Author URI:
 Tags: mailjet, woocommerce, crm, contact
 Requires at least: 1.3
