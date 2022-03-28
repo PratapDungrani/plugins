@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  *
  * @extends \WC_Email
  */
-use \Mailjet\Resources;
 
 class WM_Contact_Email extends WC_Email {
 	
@@ -77,41 +76,24 @@ class WM_Contact_Email extends WC_Email {
 			return;
 		}
 		
-		//setup connection	
-		$mj = new \Mailjet\Client($apikey, $secretkey,true,['version' => 'v3']);
+		//connect mailjet and add contact
+		$send_email = 'false';
+		$send_email = apply_filters( 'add_contact_to_mailjet', $send_email, $email, $apikey, $secretkey );
 		
-		//get email from mailjet contact
-		$request = $mj->get(Resources::$Contact, [
-			'id' => $email
-		]);
-		
-		//return if contact already created
-		if($request->success()) {
+		//return if contact is not added
+		if($send_email == 'false') {
 			return;
 		}
 		
-		//create contact if email does not exist and send mail to admin		
-		$body = [
-			'Email' => $email
-		];
-		
-		$response = $mj->post(Resources::$Contact, [
-			'body' => $body
-		]);
-		
-		//if contact added successfully
-		if($response->success()) {
-		/* Proceed with sending email */
-		
-			if ( ! $this->is_enabled() || ! $this->get_recipient() ) {
-				return;
-			}
-			// send the email
-			$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
-			
-			// add order note about the same
-			$this->object->add_order_note( sprintf( __( '%s email sent to admin.', 'woo-mailjet' ), $this->title ) );		
+		/* Proceed with sending email */		
+		if ( ! $this->is_enabled() || ! $this->get_recipient() ) {
+			return;
 		}
+		// send the email
+		$this->send( $this->get_recipient(), $this->get_subject(), $this->get_content(), $this->get_headers(), $this->get_attachments() );
+		
+		// add order note about the same
+		$this->object->add_order_note( sprintf( __( '%s email sent to admin.', 'woo-mailjet' ), $this->title ) );		
 	}
 	
 	/**

@@ -20,7 +20,8 @@ define( 'CUSTOM_WM_EMAIL_PATH', plugin_dir_path( __FILE__ ) );
 
 require_once 'include/wm-email-setting.php';
 require_once 'include/wm-subscription-option.php';
-require 'mailjet/vendor/autoload.php';
+require_once 'mailjet/vendor/autoload.php';
+require_once 'include/wm_mailjet_hook.php';
 
 
 if ( ! class_exists( 'woo_mailjet' ) ) {
@@ -35,6 +36,7 @@ if ( ! class_exists( 'woo_mailjet' ) ) {
 		public function __construct() {
 
 			add_action( 'admin_init', array( &$this, 'check_if_woocommerce_is_active' ) );
+			add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( &$this, 'wm_plugin_settings_link' ) );
 
 			// scripts.
 			add_action( 'admin_enqueue_scripts', array( &$this, 'wm_admin_scripts' ) );
@@ -75,6 +77,16 @@ if ( ! class_exists( 'woo_mailjet' ) ) {
 			$message = __( 'Woo Mailjet plugin requires WooCommerce installed and activate.', 'woo-mailjet' );
 
 			printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_attr( $message ) );
+		}
+		
+		/**
+		 * Settings link on Plugins page
+		 *
+		 */
+		public function wm_plugin_settings_link( $links ) {
+			$settings_link = '<a href="' . esc_url( get_admin_url( null, 'admin.php?page=wc-settings&tab=email&section=wm_contact_email' ) ) . '">Settings</a>';
+			array_unshift($links, $settings_link);
+			return $links;
 		}
 
 
